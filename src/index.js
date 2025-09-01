@@ -15,7 +15,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
 app.use(cors({
-  origin: "https://real-time-chat-app-frontend-alpha.vercel.app",
   credentials: true,
 }));
 

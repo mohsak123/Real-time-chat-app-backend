@@ -11,10 +11,24 @@ dotenv.config();
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
 app.use(cookieParser());
 
+// السماح للفرونت من localhost + Vercel
+const allowedOrigins = [
+  "http://localhost:5173", // التطوير
+  "http://localhost:3000", // إذا شغال Next.js محلي
+  "https://real-time-chat-app-frontend-alpha.vercel.app" // الإنتاج
+];
+
 app.use(cors({
+  origin: function (origin, callback) {
+    // إذا ما في origin (زي Postman) أو موجود ضمن القائمة -> سماح
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
 

@@ -11,12 +11,14 @@ const allowedOrigins = [
   "https://real-time-chat-app-frontend-alpha.vercel.app"
 ];
 
-const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    credentials: true,
-  }
-});
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+app.options("*", cors());
 
 export function getReceiveSocketId(userId){
   return userSocketMap[userId]

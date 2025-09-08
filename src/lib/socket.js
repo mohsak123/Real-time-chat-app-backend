@@ -1,28 +1,36 @@
+import { Server } from "socket.io";
+import http from "http";
+import express from "express";
+
+const app = express();
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: ["https://real-time-chat-app-frontend-alpha.vercel.app"]
+  }
+});
+
 export function getReceiveSocketId(userId){
   return userSocketMap[userId]
 }
 
 const userSocketMap = {};
 
-export function initializeSocket(io) {
-  io.on("connection", (socket) => {
-    // console.log("A user connected", socket.id);
-    const userId = socket.handshake.query.userId;
+io.on("connection", (socket) => {
+  // console.log("A user connected", socket.id);
 
-    if (userId && userId !== "undefined") {
-      userSocketMap[userId] = socket.id;
-    }
+  const userId = socket.handshake.query.userId;
 
-    // إرسال قائمة المستخدمين المتصلين للجميع
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  if(userId) userSocketMap[userId] = socket.id;
 
-    socket.on("disconnect", () => {
-      // console.log("A user disconnected", socket.id);
-      if (userId && userId !== "undefined") {
-        delete userSocketMap[userId];
-      }
-      // تحديث قائمة المستخدمين المتصلين للجميع
-      io.emit("getOnlineUsers", Object.keys(userSocketMap));
-    });
-  });
-}
+  io.emit("getOnlineUsers",Object.keys(userSocketMap))
+
+  socket.on("disconnect", () => {
+    // console.log("A user disconnected", socket.id);
+    delete userSocketMap[userId];
+    io.emit("getOnlineUsers", Object.keys(userSocketMap))
+  })
+})
+
+export { server, io, app };
